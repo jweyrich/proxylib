@@ -14,10 +14,10 @@ class shared_manager : private boost::noncopyable {
 		typedef std::set<shared_type>			container;
 		typedef typename container::iterator	iterator;
 
-		void add(shared_type item) {
+		void add(const shared_type& item) {
 			_container.insert(item);
 		}
-		void remove(shared_type item) {
+		void remove(const shared_type& item) {
 			_container.erase(item);
 		}
 		void clear() {
