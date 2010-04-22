@@ -5,7 +5,7 @@
 #include <proxylib/proxylib.h>
 
 void signal_handler(int signal) {
-	fprintf(stderr, "Received signal %d\nExiting...\n", signal);
+	std::cerr << "Received signal "  << signal << "\nExiting..." << std::endl;
 	exit(0);
 }
 
