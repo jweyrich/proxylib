@@ -4,12 +4,27 @@
 #include <boost/thread.hpp>
 #include <proxylib/proxylib.h>
 
+void signal_handler(int signal) {
+	fprintf(stderr, "Received signal %d\nExiting...\n", signal);
+	exit(0);
+}
+
+void install_sighandlers() {
+	signal(SIGHUP, SIG_IGN);
+	signal(SIGINT, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGKILL, signal_handler);
+	signal(SIGQUIT, signal_handler);
+}
+
 int main(int argc, char** argv) {
 	try {
 		if (argc != 2) {
 			std::cerr << "Usage: proxy <port>" << std::endl;
 			return EXIT_FAILURE;
 		}
+
+		install_sighandlers();
 
 		namespace socks4a = proxylib::asio::socks4a;
 
