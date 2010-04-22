@@ -33,10 +33,10 @@ class reply {
 		}
 		~reply() {}
 
-		inline boost::asio::ip::address_v4 address() const {
+		boost::asio::ip::address_v4 address() const {
 			return boost::asio::ip::address_v4(dstip);
 		}
-		inline boost::asio::ip::tcp::endpoint endpoint() const {
+		boost::asio::ip::tcp::endpoint endpoint() const {
 			return boost::asio::ip::tcp::endpoint(address(), dstport);
 		}
 		boost::array<boost::asio::const_buffer, 4> buffer() const {
@@ -50,7 +50,7 @@ class reply {
 			};
 			return bufs;
 		}
-		inline bool success() const {
+		bool success() const {
 			return vn == 0 && cd == request_granted;
 		}
 

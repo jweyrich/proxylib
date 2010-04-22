@@ -26,10 +26,10 @@ class connection : private boost::noncopyable {
 		~connection() {
 			disconnect();
 		}
-		inline bool connected() const {
+		bool connected() const {
 			return _socket.is_open();
 		}
-		inline void disconnect() {
+		void disconnect() {
 			if (connected()) {
 //				error_code error;
 //				// FIXME(jweyrich): any better way to check whether the socket is really connected or not?
@@ -39,15 +39,15 @@ class connection : private boost::noncopyable {
 				_socket.close();
 			}
 		}
-		inline void dump_read_buffer(FILE* file, const size_t& size) const {
+		void dump_read_buffer(FILE* file, const size_t& size) const {
 			dump_hex(file, _buffer.data(), size, 0);
 		}
-		inline socket_type& socket() { return _socket; }
-		inline buffer_type& read_buffer() { return _buffer; }
-		inline handler_type& read_cb() { return _read_cb; }
-		inline handler_type& write_cb() { return _write_cb; }
-		inline void set_read_cb(handler_type func) { _read_cb = func; }
-		inline void set_write_cb(handler_type func) { _write_cb = func; }
+		socket_type& socket() { return _socket; }
+		buffer_type& read_buffer() { return _buffer; }
+		handler_type& read_cb() { return _read_cb; }
+		handler_type& write_cb() { return _write_cb; }
+		void set_read_cb(handler_type func) { _read_cb = func; }
+		void set_write_cb(handler_type func) { _write_cb = func; }
 
 	private:
 		boost::asio::io_service&	_io_service;

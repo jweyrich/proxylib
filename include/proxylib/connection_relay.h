@@ -25,13 +25,13 @@ class connection_relay : private boost::noncopyable {
 		void start();
 		void stop();
 
-		inline connection_t& client() { return _client; }
-		inline connection_t& remote() { return _remote; }
+		connection_t& client() { return _client; }
+		connection_t& remote() { return _remote; }
 
-		inline handler_type& error_cb() { return _error_cb; }
-		inline void set_error_cb(handler_type func) { _error_cb = func; }
-		inline handler_type& disconnect_cb() { return _disconnect_cb; }
-		inline void set_disconnect_cb(handler_type func) { _disconnect_cb = func; }
+		handler_type& error_cb() { return _error_cb; }
+		void set_error_cb(handler_type func) { _error_cb = func; }
+		handler_type& disconnect_cb() { return _disconnect_cb; }
+		void set_disconnect_cb(handler_type func) { _disconnect_cb = func; }
 
 		struct endpoint {
 			enum { client, remote };
