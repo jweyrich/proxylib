@@ -5,8 +5,8 @@
 #include <proxylib/proxylib.h>
 
 void signal_handler(int signal) {
-	std::cerr << "Received signal "  << signal << "\nExiting..." << std::endl;
-	exit(0);
+	std::cerr << "Received signal " << signal << std::endl << "Exiting..." << std::endl;
+	exit(EXIT_SUCCESS);
 }
 
 void install_sighandlers() {

@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include <proxylib/common.h>
 
@@ -44,7 +45,8 @@ class request {
 			return boost::asio::ip::tcp::endpoint(address(), dstport);
 		}
 		boost::asio::ip::tcp::resolver::query query() {
-			return boost::asio::ip::tcp::resolver::query(hostname, dstport);
+			std::string port = boost::lexical_cast<std::string>(dstport);
+			return boost::asio::ip::tcp::resolver::query(hostname, port);
 		}
 		boost::array<boost::asio::const_buffer, 8> buffer() const {
 			boost::array<boost::asio::const_buffer, 8> bufs = {
