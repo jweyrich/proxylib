@@ -65,7 +65,7 @@ void connection_relay::setup_handlers() {
 }
 
 void connection_relay::handle_client_read(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	switch (error.value()) {
 		case 0:
 			_client.dump_read_buffer(stdout, bytes_transferred);
@@ -89,7 +89,7 @@ void connection_relay::handle_client_read(const error_code& error, const size_t&
 }
 
 void connection_relay::handle_remote_read(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	switch (error.value()) {
 		case 0:
 			_remote.dump_read_buffer(stdout, bytes_transferred);
@@ -113,7 +113,7 @@ void connection_relay::handle_remote_read(const error_code& error, const size_t&
 }
 
 void connection_relay::handle_client_write(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	switch (error.value()) {
 		case 0:
 			_remote.socket().async_read_some(
@@ -130,7 +130,7 @@ void connection_relay::handle_client_write(const error_code& error, const size_t
 }
 
 void connection_relay::handle_remote_write(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	switch (error.value()) {
 		case 0:
 			_client.socket().async_read_some(
@@ -146,6 +146,4 @@ void connection_relay::handle_remote_write(const error_code& error, const size_t
 	}
 }
 
-} // namespace socks4a
-} // namespace asio
-} // namespace proxylib
+} } } // namespace proxylib::asio::socks4a

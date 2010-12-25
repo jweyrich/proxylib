@@ -14,21 +14,21 @@ handshake_handler::handshake_handler(channel& channel)
 	: _channel(channel),
 	  _resolver(channel.io_service()),
 	  _relay(channel.client(), channel.remote()) {
-	DTRACE;
+	LOG_TRACE;
 }
 
 handshake_handler::~handshake_handler() {
-	DTRACE;
+	LOG_TRACE;
 }
 
 void handshake_handler::start() {
-	DTRACE;
+	LOG_TRACE;
 	setup_handlers();
 	read_request();
 }
 
 void handshake_handler::stop() {
-	DTRACE;
+	LOG_TRACE;
 	_relay.stop();
 	// Be sure to disconnect.
 	_channel.client().disconnect();
@@ -73,7 +73,7 @@ void handshake_handler::setup_handlers() {
 }
 
 void handshake_handler::read_request() {
-	DTRACE;
+	LOG_TRACE;
 	async_read(
 		_channel.client().socket(),
 		boost::asio::buffer(_channel.client().read_buffer()),
@@ -83,7 +83,7 @@ void handshake_handler::read_request() {
 }
 
 void handshake_handler::handle_read_request(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	if (!error) {
 		boost::tribool result;
 		// TODO(jweyrich): use buffer + bytes_transferred instead of buffer.end() ?
@@ -91,7 +91,7 @@ void handshake_handler::handle_read_request(const error_code& error, const size_
 			_request, _channel.client().read_buffer().begin(), _channel.client().read_buffer().end());
 
 		if (result) {
-			DLOG("bytes_transferred = %lu", bytes_transferred);
+			LOG("bytes_transferred = %lu", bytes_transferred);
 			// Swap endianess.
 			//_request.swap_endianess(direction::incoming);
 			if (_request.vn != version) {
@@ -103,11 +103,11 @@ void handshake_handler::handle_read_request(const error_code& error, const size_
 				case request::connect:
 					if (IN_000X(_request.dstip)) {
 						// Lookup host name.
-						DLOG("resolving %s", _request.hostname.c_str());
+						LOG("resolving %s", _request.hostname.c_str());
 						_resolver.async_resolve(_request.query(), _resolve_cb);
 					} else {
 						endpoint_type endpoint = _request.endpoint();
-						DLOG("connecting to %s:%d",
+						LOG("connecting to %s:%d",
 							 endpoint.address().to_string().c_str(),
 							 endpoint.port());
 						_channel.remote().socket().async_connect(
@@ -126,11 +126,11 @@ void handshake_handler::handle_read_request(const error_code& error, const size_
 					break;
 			}
 		} else if (!result) {
-			DLOG("invalid request");
+			LOG("invalid request");
 			// Invalid request.
 			handle_error(error, connection_relay::endpoint::client); // FIXME(jweyrich): should we pick a custom error?
 		} else {
-			DLOG("waiting more data...");
+			LOG("waiting more data...");
 			// More data required.
 			read_request();
 		}
@@ -140,10 +140,10 @@ void handshake_handler::handle_read_request(const error_code& error, const size_
 }
 
 void handshake_handler::handle_resolve(const error_code& error, resolver_type::iterator iter) {
-	DTRACE;
+	LOG_TRACE;
 	if (!error) {
 		endpoint_type endpoint = *iter;
-		DLOG("connecting to %s:%d",
+		LOG("connecting to %s:%d",
 			 endpoint.address().to_string().c_str(),
 			 endpoint.port());
 		_channel.remote().socket().async_connect(
@@ -156,14 +156,14 @@ void handshake_handler::handle_resolve(const error_code& error, resolver_type::i
 			)
 		);
 	} else {
-		DLOG("error: %s", error.message().c_str());
+		LOG("error: %s", error.message().c_str());
 	}
 }
 
 void handshake_handler::handle_connect(const error_code& error, resolver_type::iterator iter) {
-	DTRACE;
+	LOG_TRACE;
 	if (!error) {
-		DLOG("connected");
+		LOG("connected");
 		_reply.cd = reply::request_granted;
 	} else if (iter != resolver_type::iterator()) {
 		// The connection failed. Try the next endpoint in the list.
@@ -171,7 +171,7 @@ void handshake_handler::handle_connect(const error_code& error, resolver_type::i
 		handle_resolve(error_code(), iter);
 		return;
 	} else {
-		DLOG("error: %s", error.message().c_str());
+		LOG("error: %s", error.message().c_str());
 		_reply.cd = reply::request_failed;
 		_channel.remote().disconnect();
 	}
@@ -184,10 +184,10 @@ void handshake_handler::handle_connect(const error_code& error, resolver_type::i
 }
 
 void handshake_handler::handle_write_reply(const error_code& error, const size_t& bytes_transferred) {
-	DTRACE;
+	LOG_TRACE;
 	if (!error) {
 		if (!_reply.success()) {
-			DLOG("!_reply.success()");
+			LOG("!_reply.success()");
 			_channel.client().disconnect();
 			return;
 		}
@@ -198,17 +198,15 @@ void handshake_handler::handle_write_reply(const error_code& error, const size_t
 }
 
 void handshake_handler::handle_error(const error_code& error, int endpoint) {
-	DTRACE;
-	DLOG("error: %s", error.message().c_str());
+	LOG_TRACE;
+	LOG("error: %s", error.message().c_str());
 	_channel.stop();
 	handle_disconnect(error, endpoint);
 }
 
 void handshake_handler::handle_disconnect(const error_code& error, int endpoint) {
-	DTRACE;
+	LOG_TRACE;
 	_channel.remove_from_manager();
 }
 
-} // namespace socks4a
-} // namespace asio
-} // namespace proxylib
+} } } // namespace proxylib::asio::socks4a

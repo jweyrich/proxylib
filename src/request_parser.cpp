@@ -20,7 +20,7 @@ boost::tribool request_parser::consume(request& req, byte input) {
 			}
 			_state = command;
 			req.vn = input;
-			DLOG("vn = %02x", req.vn);
+			LOG("vn = %02x", req.vn);
 			return boost::indeterminate;
 		case command:
 			if (input != request::bind && input != request::connect) {
@@ -28,7 +28,7 @@ boost::tribool request_parser::consume(request& req, byte input) {
 			}
 			_state = port_1;
 			req.cd = input;
-			DLOG("cd = %02x", req.cd);
+			LOG("cd = %02x", req.cd);
 			return boost::indeterminate;
 		case port_1:
 			_state = port_2;
@@ -37,7 +37,7 @@ boost::tribool request_parser::consume(request& req, byte input) {
 		case port_2:
 			_state = ip_1;
 			req.dstport |= input & 0x00ff;
-			DLOG("port = %d", req.dstport);
+			LOG("port = %d", req.dstport);
 			return boost::indeterminate;
 		case ip_1:
 			_state = ip_2;
@@ -54,13 +54,13 @@ boost::tribool request_parser::consume(request& req, byte input) {
 		case ip_4:
 			_state = userid;
 			req.dstip |= input & 0x000000ff;
-			DLOG("dstip = %s", boost::asio::ip::address_v4(req.dstip).to_string().c_str());
+			LOG("dstip = %s", boost::asio::ip::address_v4(req.dstip).to_string().c_str());
 			return boost::indeterminate;
 		case userid:
 			if (!is_valid_userid(input) || req.userid.length() >= 255) {
 				return false;
 			} else if (input == '\0') {
-				DLOG("userid = %s", req.userid.c_str());
+				LOG("userid = %s", req.userid.c_str());
 				if (!IN_000X(req.dstip))
 					return true;
 				_state = hostname;
@@ -72,7 +72,7 @@ boost::tribool request_parser::consume(request& req, byte input) {
 			if (!is_valid_hostname(input) || req.hostname.length() >= 255) {
 				return false;
 			} else if (input == '\0') {
-				DLOG("hostname = %s", req.hostname.c_str());
+				LOG("hostname = %s", req.hostname.c_str());
 				return true;
 			} else {
 				req.hostname.push_back(input);
@@ -91,6 +91,4 @@ bool request_parser::is_valid_hostname(int c) {
 	return std::isalnum(c) || c == '\0' || c == '.' || c == '-';
 }
 
-} // namespace socks4a
-} // namespace asio
-} // namespace proxylib
+} } } // namespace proxylib::asio::socks4a
